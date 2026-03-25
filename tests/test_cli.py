@@ -18,6 +18,13 @@ def test_load_brief_requires_input():
 
 def test_ensure_model_env_requires_openai_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("AGENT_DEPLOYMENT_DEMO_MODE", raising=False)
     with pytest.raises(SystemExit):
         ensure_model_env()
+
+
+def test_ensure_model_env_allows_demo_mode(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("AGENT_DEPLOYMENT_DEMO_MODE", "true")
+    ensure_model_env()
 

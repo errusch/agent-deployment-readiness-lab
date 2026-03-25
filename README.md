@@ -10,6 +10,11 @@ This project is intentionally narrow. It is not a chatbot, a general-purpose mul
 - clear runtime outputs
 - observability and evaluation hooks
 
+It supports two operating modes:
+
+- **Live model mode** for real LangChain/LangGraph runs
+- **Offline demo mode** for walking through the graph without API keys
+
 ## What It Does
 
 Given a workflow brief such as:
@@ -85,6 +90,12 @@ cp .env.example .env
 
 Set your model and LangSmith keys in `.env`.
 
+If you want to run the project without model keys first, set:
+
+```bash
+AGENT_DEPLOYMENT_DEMO_MODE=true
+```
+
 ### 3. Run locally with LangGraph Studio
 
 ```bash
@@ -101,7 +112,7 @@ This should expose:
 
 ```bash
 source .venv/bin/activate
-agent-readiness \
+python run_demo.py \
   --brief-file examples/sample_briefs/onboarding_ops.txt \
   --auto-approve \
   --show-interrupt \
@@ -109,6 +120,14 @@ agent-readiness \
 ```
 
 This gives you a fast, reproducible demo path without needing to drive everything through Studio.
+
+Why `python run_demo.py` instead of the installed console script?
+
+- it is the most reliable path during local development
+- it avoids editable-install quirks in workspaces with spaces in the folder name
+- the underlying CLI logic is the same
+
+If `.env` contains `AGENT_DEPLOYMENT_DEMO_MODE=true`, the graph will use deterministic demo outputs instead of live model calls. That is useful for validating the workflow mechanics before switching to real LLM runs.
 
 ### 5. Try a sample brief in Studio
 
@@ -134,7 +153,7 @@ When the graph hits the approval step, resume it with something like:
 If you want the graph to stop at review without auto-approving, run:
 
 ```bash
-agent-readiness --brief-file examples/sample_briefs/onboarding_ops.txt --show-interrupt
+python run_demo.py --brief-file examples/sample_briefs/onboarding_ops.txt --show-interrupt
 ```
 
 ## LangSmith
@@ -170,6 +189,7 @@ python tests/run_eval.py
 - No web UI yet
 - No authentication or persistent storage
 - The eval harness is intentionally lightweight
+- Offline demo mode is for workflow validation, not for judging model quality
 
 More detail: [`docs/limitations.md`](./docs/limitations.md)
 
@@ -186,3 +206,4 @@ More detail: [`docs/limitations.md`](./docs/limitations.md)
 - Architecture notes: [`docs/architecture.md`](./docs/architecture.md)
 - Demo script: [`docs/demo-script.md`](./docs/demo-script.md)
 - Sample briefs: [`examples/sample_briefs`](./examples/sample_briefs)
+- Sample output: [`examples/sample_outputs/onboarding_plan.md`](./examples/sample_outputs/onboarding_plan.md)

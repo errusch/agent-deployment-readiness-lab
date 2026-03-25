@@ -5,6 +5,7 @@
 - Uses in-memory checkpointing for local development only
 - Assumes one configured model provider
 - Uses structured LLM calls rather than a richer tool-execution loop
+- Includes an offline demo mode that validates the workflow shape but does not represent real model behavior
 
 ## UX
 

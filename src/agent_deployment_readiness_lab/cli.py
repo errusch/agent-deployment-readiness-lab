@@ -60,14 +60,27 @@ def load_brief(args: argparse.Namespace) -> str:
 
 
 def ensure_model_env() -> None:
+    if os.getenv("AGENT_DEPLOYMENT_DEMO_MODE", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        return
     if os.getenv("OPENAI_API_KEY"):
         return
     raise SystemExit(
-        "OPENAI_API_KEY is not set. Copy .env.example to .env, add your key, then rerun.",
+        "OPENAI_API_KEY is not set. Copy .env.example to .env and add your key, or set AGENT_DEPLOYMENT_DEMO_MODE=true for offline demo mode.",
     )
 
 
 def extract_interrupt_payload(result) -> object | None:
+    if isinstance(result, dict):
+        raw_interrupt = result.get("__interrupt__")
+        if raw_interrupt:
+            first = raw_interrupt[0]
+            return getattr(first, "value", first)
+
     interrupts = getattr(result, "interrupts", None)
     if interrupts:
         first = interrupts[0]
@@ -84,6 +97,9 @@ def extract_interrupt_payload(result) -> object | None:
 
 
 def extract_final_output(result) -> str:
+    if isinstance(result, dict) and "final_output" in result:
+        return result["final_output"]
+
     value = getattr(result, "value", result)
     if isinstance(value, dict) and "final_output" in value:
         return value["final_output"]
@@ -141,4 +157,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

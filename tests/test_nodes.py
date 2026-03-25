@@ -78,4 +78,3 @@ def test_render_escalation_output_contains_missing_information():
     output = render_escalation_output(build_sample_state())
     assert "## Missing Information" in output
     assert "No SLA was provided" in output
-

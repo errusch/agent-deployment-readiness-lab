@@ -8,6 +8,7 @@ from langchain.messages import HumanMessage, SystemMessage
 from langgraph.types import interrupt
 
 from .config import get_settings
+from .demo_mode import demo_draft_plan, demo_structured_brief, demo_workflow_analysis
 from .prompts import ANALYZE_SYSTEM_PROMPT, DRAFT_PLAN_SYSTEM_PROMPT, INGEST_SYSTEM_PROMPT
 from .schemas import DraftPlan, StructuredBrief, WorkflowAnalysis
 from .state import GraphState
@@ -242,6 +243,9 @@ def render_escalation_output(state: GraphState) -> str:
 
 
 def ingest_brief(state: GraphState) -> GraphState:
+    if get_settings().demo_mode:
+        return {"structured_brief": demo_structured_brief(state["brief"])}
+
     structured_brief = _structured_invoke(
         StructuredBrief,
         INGEST_SYSTEM_PROMPT,
@@ -252,6 +256,14 @@ def ingest_brief(state: GraphState) -> GraphState:
 
 def analyze_workflow(state: GraphState) -> GraphState:
     structured_brief = state["structured_brief"]
+    if get_settings().demo_mode:
+        workflow_analysis = demo_workflow_analysis(structured_brief, state["brief"])
+        reference_patterns = get_reference_patterns(workflow_analysis.workflow_type)
+        return {
+            "workflow_analysis": workflow_analysis,
+            "reference_patterns": reference_patterns,
+        }
+
     workflow_analysis = _structured_invoke(
         WorkflowAnalysis,
         ANALYZE_SYSTEM_PROMPT,
@@ -268,6 +280,15 @@ def draft_plan(state: GraphState) -> GraphState:
     structured_brief = state["structured_brief"]
     workflow_analysis = state["workflow_analysis"]
     reference_patterns = state["reference_patterns"]
+    if get_settings().demo_mode:
+        return {
+            "draft_plan": demo_draft_plan(
+                structured_brief,
+                workflow_analysis,
+                reference_patterns,
+            )
+        }
+
     draft = _structured_invoke(
         DraftPlan,
         DRAFT_PLAN_SYSTEM_PROMPT,
@@ -314,4 +335,3 @@ def finalize_plan(state: GraphState) -> GraphState:
 
 def escalate_request(state: GraphState) -> GraphState:
     return {"final_output": render_escalation_output(state)}
-
