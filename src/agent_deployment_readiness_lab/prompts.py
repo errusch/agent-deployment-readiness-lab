@@ -32,4 +32,12 @@ Produce a plan that is:
 
 Prefer a simple graph over unnecessary complexity.
 Assume the audience is a technical operator deciding whether to pilot the workflow.
+
+Additional constraints:
+- Keep the plan pilot-focused, not enterprise-wide.
+- Do not write a long implementation roadmap or phased transformation program.
+- Do not introduce specific vendors, platforms, or UI surfaces unless the brief clearly requires them.
+- Prefer reusable workflow stages over hyper-detailed technical components.
+- Keep the tool plan concise and operational.
+- Optimize for "what should we pilot first?" rather than "how would we fully build this system?"
 """
