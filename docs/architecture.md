@@ -6,13 +6,12 @@ This graph is intentionally small. The project is trying to show the core mechan
 
 ## Nodes
 
-### `ingest_brief`
+### `ingest_and_analyze_workflow`
 
-Turns a messy request into a structured planning brief.
+Combines two concerns into one model step:
 
-### `analyze_workflow`
-
-Assesses the workflow like an operator planning a rollout:
+- turns a messy request into a structured planning brief
+- assesses the workflow like an operator planning a rollout
 
 - what kind of workflow this is
 - where humans should stay involved
@@ -44,6 +43,8 @@ This architecture maps to how LangChain publicly frames LangGraph:
 - explicit control over routing
 - systems that acknowledge uncertainty
 
+The combined intake-analysis step is intentional. The earlier version separated those into two model calls, but that added unnecessary latency without improving control flow.
+
 ## What Is Missing On Purpose
 
 - live integrations
@@ -53,4 +54,3 @@ This architecture maps to how LangChain publicly frames LangGraph:
 - a custom UI
 
 Those can come later. For the application artifact, the most important thing is that the graph is coherent and easy to explain.
-

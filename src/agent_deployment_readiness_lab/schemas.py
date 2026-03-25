@@ -33,6 +33,11 @@ class WorkflowAnalysis(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
 
 
+class IntakeAnalysis(BaseModel):
+    structured_brief: StructuredBrief
+    workflow_analysis: WorkflowAnalysis
+
+
 class DraftPlan(BaseModel):
     title: str
     executive_summary: str
@@ -44,4 +49,3 @@ class DraftPlan(BaseModel):
     limitations: list[str] = Field(default_factory=list)
     approval_prompt: str
     confidence: float = Field(ge=0.0, le=1.0)
-

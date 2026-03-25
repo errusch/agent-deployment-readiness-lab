@@ -9,8 +9,8 @@ from langgraph.types import interrupt
 
 from .config import get_settings
 from .demo_mode import demo_draft_plan, demo_structured_brief, demo_workflow_analysis
-from .prompts import ANALYZE_SYSTEM_PROMPT, DRAFT_PLAN_SYSTEM_PROMPT, INGEST_SYSTEM_PROMPT
-from .schemas import DraftPlan, StructuredBrief, WorkflowAnalysis
+from .prompts import DRAFT_PLAN_SYSTEM_PROMPT, INGEST_AND_ANALYZE_SYSTEM_PROMPT
+from .schemas import DraftPlan, IntakeAnalysis, StructuredBrief, WorkflowAnalysis
 from .state import GraphState
 
 
@@ -84,15 +84,9 @@ def _format_brief_for_llm(state: GraphState) -> str:
     return f"""Original brief:
 {state["brief"]}
 
-Return a structured planning brief.
-"""
-
-
-def _format_analysis_input(structured_brief: StructuredBrief) -> str:
-    return f"""Structured brief:
-{structured_brief.model_dump_json(indent=2)}
-
-Analyze this workflow for agent deployment readiness.
+Return both:
+- a structured planning brief
+- a workflow analysis
 """
 
 
@@ -263,35 +257,27 @@ def render_escalation_output(state: GraphState) -> str:
     return "\n".join(lines)
 
 
-def ingest_brief(state: GraphState) -> GraphState:
+def ingest_and_analyze_workflow(state: GraphState) -> GraphState:
     if get_settings().demo_mode:
-        return {"structured_brief": demo_structured_brief(state["brief"]).model_dump()}
-
-    structured_brief = _structured_invoke(
-        StructuredBrief,
-        INGEST_SYSTEM_PROMPT,
-        _format_brief_for_llm(state),
-    )
-    return {"structured_brief": structured_brief.model_dump()}
-
-
-def analyze_workflow(state: GraphState) -> GraphState:
-    structured_brief = _load_structured_brief(state["structured_brief"])
-    if get_settings().demo_mode:
+        structured_brief = demo_structured_brief(state["brief"])
         workflow_analysis = demo_workflow_analysis(structured_brief, state["brief"])
         reference_patterns = get_reference_patterns(workflow_analysis.workflow_type)
         return {
+            "structured_brief": structured_brief.model_dump(),
             "workflow_analysis": workflow_analysis.model_dump(),
             "reference_patterns": reference_patterns,
         }
 
-    workflow_analysis = _structured_invoke(
-        WorkflowAnalysis,
-        ANALYZE_SYSTEM_PROMPT,
-        _format_analysis_input(structured_brief),
+    intake_analysis = _structured_invoke(
+        IntakeAnalysis,
+        INGEST_AND_ANALYZE_SYSTEM_PROMPT,
+        _format_brief_for_llm(state),
     )
+    structured_brief = intake_analysis.structured_brief
+    workflow_analysis = intake_analysis.workflow_analysis
     reference_patterns = get_reference_patterns(workflow_analysis.workflow_type)
     return {
+        "structured_brief": structured_brief.model_dump(),
         "workflow_analysis": workflow_analysis.model_dump(),
         "reference_patterns": reference_patterns,
     }

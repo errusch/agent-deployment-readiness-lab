@@ -38,12 +38,11 @@ This repo is designed around deployment judgment rather than demo polish. The go
 
 ```mermaid
 flowchart LR
-    A["Ingest Brief"] --> B["Analyze Workflow"]
-    B --> C["Draft Plan"]
-    C --> D["Review Gate (interrupt)"]
-    D --> E{"Approve + adequate confidence?"}
-    E -->|Yes| F["Finalize Plan"]
-    E -->|No| G["Escalate / Request More Context"]
+    A["Ingest + Analyze Workflow"] --> B["Draft Plan"]
+    B --> C["Review Gate (interrupt)"]
+    C --> D{"Approve + adequate confidence?"}
+    D -->|Yes| E["Finalize Plan"]
+    D -->|No| F["Escalate / Request More Context"]
 ```
 
 ### State
