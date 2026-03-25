@@ -1,0 +1,11 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "python_version": "3.11",
+  "env": "./.env",
+  "dependencies": ["."],
+  "dockerfile_lines": [],
+  "graphs": {
+    "agent_deployment_readiness_lab": "./src/agent_deployment_readiness_lab/graph.py:graph"
+  }
+}
+

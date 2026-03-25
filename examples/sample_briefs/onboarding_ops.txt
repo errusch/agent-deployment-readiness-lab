@@ -1,0 +1,15 @@
+We need an AI workflow to help our ops team handle client onboarding emails.
+
+The current process is messy. New requests come in by email, details are incomplete, and one of our team members manually summarizes what the client needs, chases down missing information, and hands the work to implementation.
+
+We want a workflow that:
+- summarizes the request
+- flags missing information
+- recommends a next action
+- creates a handoff packet for the implementation team
+
+Constraints:
+- a human should approve anything customer-facing
+- we do not want the system guessing when requirements are unclear
+- we need a simple rollout path, not a giant platform build
+

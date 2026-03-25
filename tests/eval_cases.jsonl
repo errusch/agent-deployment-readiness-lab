@@ -1,0 +1,4 @@
+{"name":"onboarding_ops","brief":"We need an AI workflow to help our ops team handle client onboarding emails, summarize requirements, flag missing info, and create a handoff plan.","expected_sections":["## Workflow Summary","## Tool Plan","## Rollout Checklist"]}
+{"name":"executive_support","brief":"We need an AI workflow to turn messy executive notes into a clean briefing with action items, review points, and no autonomous sending.","expected_sections":["## Workflow Summary","## Human Review Points","## Confidence"]}
+{"name":"support_handoff","brief":"We want an agent workflow that turns inconsistent support tickets into reviewable engineering handoffs and escalates weak evidence instead of guessing.","expected_sections":["## Workflow Summary","## Likely Failure Modes","## Guardrails"]}
+

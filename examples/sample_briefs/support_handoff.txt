@@ -1,0 +1,15 @@
+We want an agent workflow to help our support team create better engineering handoffs.
+
+Right now support tickets are inconsistent. Some are rich with evidence and some are vague. Engineering wastes time trying to figure out what happened before they can start debugging.
+
+The workflow should:
+- summarize the customer issue
+- pull out reproduction clues
+- highlight missing information
+- draft a structured handoff for engineering
+
+Constraints:
+- it should escalate weak tickets instead of pretending they are ready
+- a human should review anything labeled high priority
+- we need a pilot-friendly first version
+

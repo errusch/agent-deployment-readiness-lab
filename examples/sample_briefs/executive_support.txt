@@ -1,0 +1,15 @@
+We are exploring an AI workflow for executive support.
+
+Executives forward messy notes, Slack messages, and email threads and want a clean briefing with action items, decision points, and missing context.
+
+The workflow should:
+- normalize incoming material
+- produce a concise briefing
+- separate confirmed facts from inferred points
+- recommend what needs human review before anything is sent onward
+
+Constraints:
+- no autonomous sending
+- fast turnaround matters
+- outputs need to stay short and practical
+
