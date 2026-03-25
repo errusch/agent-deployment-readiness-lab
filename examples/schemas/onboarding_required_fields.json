@@ -1,0 +1,25 @@
+{
+  "workflow_type": "onboarding_ops",
+  "required_fields": [
+    {
+      "name": "customer_name",
+      "description": "Customer or company name",
+      "required": true
+    },
+    {
+      "name": "implementation_goal",
+      "description": "What the customer needs implemented",
+      "required": true
+    },
+    {
+      "name": "timeline",
+      "description": "Requested or expected timeline",
+      "required": true
+    },
+    {
+      "name": "primary_contact",
+      "description": "Who to follow up with",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "request_id": "onb-002",
+  "workflow_type": "onboarding_ops",
+  "subject": "New client onboarding request for Northwind Health",
+  "thread": [
+    {
+      "from": "client",
+      "timestamp": "2026-03-25T10:30:00Z",
+      "body": "Hi,\n\nCustomer name: Northwind Health\nImplementation goal: Help our ops team summarize onboarding emails and draft a handoff packet.\n\nWe are still figuring out who should own the follow-up and have not committed to a pilot date yet.\n\nThanks."
+    }
+  ],
+  "metadata": {
+    "customer_name": "Northwind Health",
+    "account_owner": "Mina Patel",
+    "priority": "high"
+  }
+}

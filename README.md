@@ -33,7 +33,9 @@ It is optimized for the transition point where teams say:
 For a single workflow brief, the graph produces:
 
 - a normalized workflow summary
-- a proposed graph shape
+- a deterministic intake validation report when a request packet is provided
+- evidence snippets showing where key required fields came from
+- proposed pilot workflow stages
 - a concise tool plan
 - explicit human review points
 - likely failure modes
@@ -43,18 +45,30 @@ For a single workflow brief, the graph produces:
 
 ## Sample Artifacts
 
+- File-backed onboarding request: [`examples/inbox/onboarding/complete_request.json`](./examples/inbox/onboarding/complete_request.json)
 - Onboarding ops sample: [`examples/sample_outputs/onboarding_plan.md`](./examples/sample_outputs/onboarding_plan.md)
 - Executive support sample: [`examples/sample_outputs/executive_support_plan.md`](./examples/sample_outputs/executive_support_plan.md)
 
+## See It In 60 Seconds
+
+- Open the sample request packet: [`examples/inbox/onboarding/complete_request.json`](./examples/inbox/onboarding/complete_request.json)
+- Open the public proof walkthrough: [`docs/public-proof.md`](./docs/public-proof.md)
+- Open the file-backed sample output: [`examples/sample_outputs/onboarding_plan.md`](./examples/sample_outputs/onboarding_plan.md)
+
+![Review interrupt](./docs/assets/review_interrupt.png)
+
+![Final output](./docs/assets/final_output.png)
+
+LangSmith traces are still available, but the screenshots above are the public proof path for external reviewers who do not have workspace access.
+
 ## What It Does
 
-Given a workflow brief such as:
+Given either a workflow brief or a structured onboarding request packet, the graph produces:
 
 > "We need an AI workflow to help our ops team handle client onboarding emails, summarize requirements, flag missing info, and create a handoff plan."
 
-the graph produces:
-
 - a normalized workflow summary
+- deterministic required-field validation for file-backed onboarding requests
 - an analysis of risks, review points, and capabilities
 - a proposed agent design
 - a rollout checklist
@@ -69,11 +83,12 @@ This repo is designed around deployment judgment rather than demo polish. The go
 
 ```mermaid
 flowchart LR
-    A["Ingest + Analyze Workflow"] --> B["Draft Plan"]
-    B --> C["Review Gate (interrupt)"]
-    C --> D{"Approve + adequate confidence?"}
-    D -->|Yes| E["Finalize Plan"]
-    D -->|No| F["Escalate / Request More Context"]
+    A["Load + Validate Request"] --> B["Ingest + Analyze Workflow"]
+    B --> C["Draft Plan"]
+    C --> D["Review Gate (interrupt)"]
+    D --> E{"Approve?"}
+    E -->|Yes| F["Finalize Plan"]
+    E -->|No| G["Escalate / Request More Context"]
 ```
 
 ### State
@@ -81,6 +96,8 @@ flowchart LR
 The graph keeps track of:
 
 - the original brief
+- the input source mode
+- the request packet and validation report when the file-backed intake path is used
 - a structured brief
 - workflow analysis
 - the draft plan
@@ -153,13 +170,14 @@ This should expose:
 ```bash
 source .venv/bin/activate
 python run_demo.py \
-  --brief-file examples/sample_briefs/onboarding_ops.txt \
+  --request-file examples/inbox/onboarding/complete_request.json \
+  --schema-file examples/schemas/onboarding_required_fields.json \
   --auto-approve \
   --show-interrupt \
-  --output-file outputs/onboarding_plan.md
+  --output-file outputs/onboarding_from_file.md
 ```
 
-This gives you a fast, reproducible demo path without needing to drive everything through Studio.
+This gives you a fast, reproducible demo path with a real request packet and deterministic field validation before the graph reaches the LLM-driven planning steps.
 
 Why `python run_demo.py` instead of the installed console script?
 
@@ -168,6 +186,15 @@ Why `python run_demo.py` instead of the installed console script?
 - the underlying CLI logic is the same
 
 If `.env` contains `AGENT_DEPLOYMENT_DEMO_MODE=true`, the graph will use deterministic demo outputs instead of live model calls. That is useful for validating the workflow mechanics before switching to real LLM runs.
+
+If you want the older brief-only demo path, run:
+
+```bash
+python run_demo.py \
+  --brief-file examples/sample_briefs/onboarding_ops.txt \
+  --auto-approve \
+  --output-file outputs/onboarding_brief_only.md
+```
 
 ### 5. Try a sample brief in Studio
 
@@ -261,7 +288,10 @@ More detail: [`docs/limitations.md`](./docs/limitations.md)
 
 - Architecture notes: [`docs/architecture.md`](./docs/architecture.md)
 - Demo script: [`docs/demo-script.md`](./docs/demo-script.md)
+- Public proof: [`docs/public-proof.md`](./docs/public-proof.md)
 - Runtime evidence: [`docs/runtime-evidence.md`](./docs/runtime-evidence.md)
+- Sample request inbox: [`examples/inbox/onboarding`](./examples/inbox/onboarding)
+- Validation schema: [`examples/schemas/onboarding_required_fields.json`](./examples/schemas/onboarding_required_fields.json)
 - Sample briefs: [`examples/sample_briefs`](./examples/sample_briefs)
 - Sample outputs:
   - [`examples/sample_outputs/onboarding_plan.md`](./examples/sample_outputs/onboarding_plan.md)

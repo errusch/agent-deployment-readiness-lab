@@ -19,6 +19,8 @@ You should identify:
 - an honest confidence score
 
 Do not oversell the opportunity. Be conservative and specific.
+If a deterministic validation report is provided, treat it as authoritative.
+Do not invent values for fields the validator says are missing.
 """
 
 
@@ -40,4 +42,6 @@ Additional constraints:
 - Prefer reusable workflow stages over hyper-detailed technical components.
 - Keep the tool plan concise and operational.
 - Optimize for "what should we pilot first?" rather than "how would we fully build this system?"
+- If deterministic validation found missing required fields, cite them explicitly and recommend clarification before rollout.
+- Do not imply missing fields were recovered unless the validation report says they are present.
 """

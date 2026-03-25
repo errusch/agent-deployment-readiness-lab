@@ -9,8 +9,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from langgraph.types import Command
+from pydantic import ValidationError
 
 from .graph import graph
+from .intake_adapter import load_request_packet, load_validation_schema
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -24,6 +26,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--brief-file",
         help="Path to a text file containing the workflow brief.",
+    )
+    parser.add_argument(
+        "--request-file",
+        help="Path to a JSON request packet to validate and plan from.",
+    )
+    parser.add_argument(
+        "--schema-file",
+        help="Optional path to a JSON schema/checklist for request validation.",
     )
     parser.add_argument(
         "--thread-id",
@@ -57,6 +67,45 @@ def load_brief(args: argparse.Namespace) -> str:
     if args.brief_file:
         return Path(args.brief_file).read_text().strip()
     raise SystemExit("Provide --brief or --brief-file.")
+
+
+def load_input_state(args: argparse.Namespace) -> dict:
+    provided = [
+        bool(args.brief),
+        bool(args.brief_file),
+        bool(args.request_file),
+    ]
+    if sum(provided) != 1:
+        raise SystemExit("Provide exactly one of --brief, --brief-file, or --request-file.")
+
+    if args.schema_file and not args.request_file:
+        raise SystemExit("--schema-file can only be used with --request-file.")
+
+    if args.request_file:
+        try:
+            packet = load_request_packet(args.request_file)
+            state = {
+                "brief": "",
+                "request_packet": packet.model_dump(by_alias=True),
+                "source_mode": "request_file",
+            }
+            if args.schema_file:
+                schema = load_validation_schema(args.schema_file)
+                state["validation_schema"] = schema.model_dump()
+            return state
+        except FileNotFoundError as exc:
+            raise SystemExit(f"Request file not found: {exc.filename}") from exc
+        except json.JSONDecodeError as exc:
+            raise SystemExit(
+                f"Request file is not valid JSON: {args.request_file} ({exc.msg})"
+            ) from exc
+        except ValidationError as exc:
+            raise SystemExit(f"Request file does not match the expected shape: {exc}") from exc
+
+    return {
+        "brief": load_brief(args),
+        "source_mode": "brief",
+    }
 
 
 def ensure_model_env() -> None:
@@ -123,11 +172,11 @@ def main() -> int:
     args = parser.parse_args()
     ensure_model_env()
 
-    brief = load_brief(args)
+    initial_state = load_input_state(args)
     thread_id = args.thread_id or f"agent-readiness-{uuid.uuid4()}"
     config = {"configurable": {"thread_id": thread_id}}
 
-    result = graph.invoke({"brief": brief}, config=config)
+    result = graph.invoke(initial_state, config=config)
     interrupt_payload = extract_interrupt_payload(result)
 
     if interrupt_payload is not None and not args.auto_approve:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .schemas import DraftPlan, StructuredBrief, WorkflowAnalysis
+from .schemas import DraftPlan, StructuredBrief, ValidationReport, WorkflowAnalysis
 
 
 def infer_workflow_type(text: str) -> str:
@@ -78,9 +78,15 @@ def demo_structured_brief(brief: str) -> StructuredBrief:
     )
 
 
-def demo_workflow_analysis(structured_brief: StructuredBrief, original_brief: str) -> WorkflowAnalysis:
+def demo_workflow_analysis(
+    structured_brief: StructuredBrief,
+    original_brief: str,
+    validation_report: ValidationReport | None = None,
+) -> WorkflowAnalysis:
     workflow_type = infer_workflow_type(original_brief)
     confidence = 0.78 if workflow_type != "general_ops" else 0.62
+    if validation_report and validation_report.missing_required_fields:
+        confidence = min(confidence, 0.54)
 
     review_points = [
         "Approve any external-facing or high-stakes output before it is used.",
@@ -105,6 +111,10 @@ def demo_workflow_analysis(structured_brief: StructuredBrief, original_brief: st
     if workflow_type == "onboarding_ops":
         review_points.append("Check customer-facing follow-up questions before sending them.")
         failure_modes.append("Missing onboarding requirements may be framed as complete intake.")
+    if validation_report and validation_report.missing_required_fields:
+        review_points.append("Confirm missing required onboarding fields before widening the pilot.")
+        failure_modes.append("The workflow may look operationally complete even though the intake packet is incomplete.")
+        business_risks.append("Teams may act on an incomplete request packet unless clarification is enforced.")
 
     return WorkflowAnalysis(
         workflow_type=workflow_type,
@@ -139,6 +149,7 @@ def demo_draft_plan(
     structured_brief: StructuredBrief,
     workflow_analysis: WorkflowAnalysis,
     reference_patterns: list[str],
+    validation_report: ValidationReport | None = None,
 ) -> DraftPlan:
     title_map = {
         "onboarding_ops": "Onboarding Workflow Deployment Plan",
@@ -149,8 +160,8 @@ def demo_draft_plan(
     }
     title = title_map.get(workflow_analysis.workflow_type, "Agent Workflow Deployment Plan")
     graph_nodes = [
-        "Ingest brief",
-        "Analyze workflow",
+        "Load and validate request",
+        "Ingest and analyze workflow",
         "Draft deployment plan",
         "Review gate",
         "Finalize or escalate",
@@ -166,7 +177,11 @@ def demo_draft_plan(
         "Do not skip human review for external-facing or high-risk outputs.",
         "Surface uncertainty directly instead of smoothing it away.",
     ]
-
+    limitations = [
+        "This demo does not include live integrations or persistent storage.",
+        "The first rollout should focus on review quality rather than full autonomy.",
+        "Confidence should be interpreted as planning confidence, not business approval.",
+    ]
     return DraftPlan(
         title=title,
         executive_summary=(
@@ -181,11 +196,7 @@ def demo_draft_plan(
         tool_plan=workflow_analysis.recommended_tools,
         guardrails=guardrails,
         rollout_checklist=rollout,
-        limitations=[
-            "This demo does not include live integrations or persistent storage.",
-            "The first rollout should focus on review quality rather than full autonomy.",
-            "Confidence should be interpreted as planning confidence, not business approval.",
-        ],
+        limitations=limitations,
         approval_prompt=(
             "Approve this deployment plan if it is conservative enough for a pilot. "
             "If not, ask for revision or more context."

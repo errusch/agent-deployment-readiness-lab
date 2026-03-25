@@ -1,0 +1,22 @@
+{
+  "request_id": "onb-001",
+  "workflow_type": "onboarding_ops",
+  "subject": "New client onboarding request for Acme Manufacturing",
+  "thread": [
+    {
+      "from": "client",
+      "timestamp": "2026-03-25T09:00:00Z",
+      "body": "Hi team,\n\nWe want help setting up a cleaner onboarding triage flow for our client requests.\n\nCustomer name: Acme Manufacturing\nImplementation goal: Stand up an email-based onboarding triage and handoff workflow for our ops team.\nTimeline: We want a pilot live by April 15.\nPrimary contact: Sarah Kim (sarah@acme.com)\n\nThanks,\nSarah"
+    },
+    {
+      "from": "account_owner",
+      "timestamp": "2026-03-25T09:15:00Z",
+      "body": "Internal note: Jane Doe owns the relationship. Priority is normal and the first rollout should stay conservative."
+    }
+  ],
+  "metadata": {
+    "customer_name": "Acme Manufacturing",
+    "account_owner": "Jane Doe",
+    "priority": "normal"
+  }
+}

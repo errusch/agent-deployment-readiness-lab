@@ -2,7 +2,52 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class RequestThreadMessage(BaseModel):
+    sender: str = Field(alias="from")
+    timestamp: str
+    body: str
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class RequestPacket(BaseModel):
+    request_id: str
+    workflow_type: str
+    subject: str
+    thread: list[RequestThreadMessage] = Field(default_factory=list)
+    metadata: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
+
+
+class RequiredFieldDefinition(BaseModel):
+    name: str
+    description: str
+    required: bool = True
+
+
+class ValidationSchema(BaseModel):
+    workflow_type: str
+    required_fields: list[RequiredFieldDefinition] = Field(default_factory=list)
+
+
+class FieldValidationResult(BaseModel):
+    name: str
+    description: str
+    required: bool
+    present: bool
+    value: str | None = None
+    evidence_snippets: list[str] = Field(default_factory=list)
+
+
+class ValidationReport(BaseModel):
+    workflow_type: str
+    readiness_verdict: Literal["ready_for_draft", "needs_context"]
+    present_fields: list[str] = Field(default_factory=list)
+    missing_required_fields: list[str] = Field(default_factory=list)
+    field_results: list[FieldValidationResult] = Field(default_factory=list)
+    summary: str
 
 
 class StructuredBrief(BaseModel):

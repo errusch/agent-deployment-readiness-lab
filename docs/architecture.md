@@ -6,6 +6,16 @@ This graph is intentionally small. The project is trying to show the core mechan
 
 ## Nodes
 
+### `load_and_validate_request`
+
+Loads a local JSON request packet, validates it against a required-fields schema, and produces a deterministic readiness report with evidence snippets.
+
+This is the thin real-world integration boundary in the repo. It is intentionally local and narrow:
+
+- file-backed input instead of a mocked prompt blob
+- required-field validation before planning
+- evidence snippets to show where detected fields came from
+
 ### `ingest_and_analyze_workflow`
 
 Combines two concerns into one model step:
@@ -28,11 +38,11 @@ Uses a LangGraph interrupt to pause and wait for human approval or revision note
 
 ### `finalize_plan`
 
-Builds the final markdown output when the plan is approved and confidence is adequate.
+Builds the final markdown output when the plan is approved.
 
 ### `escalate_request`
 
-Returns a conservative escalation output when confidence is weak or the reviewer asks for revision.
+Returns a conservative escalation output when the reviewer asks for revision or more context.
 
 ## Why This Shape
 
@@ -47,10 +57,10 @@ The combined intake-analysis step is intentional. The earlier version separated 
 
 ## What Is Missing On Purpose
 
-- live integrations
+- networked or cloud-hosted integrations
 - external retrieval
 - authentication
 - persistent storage
 - a custom UI
 
-Those can come later. For the application artifact, the most important thing is that the graph is coherent and easy to explain.
+Those can come later. For the application artifact, the most important thing is that the graph is coherent, easy to explain, and shows one thin deterministic integration boundary before the model does planning work.

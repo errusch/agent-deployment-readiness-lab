@@ -5,7 +5,7 @@
 1. Start LangGraph locally.
 2. Open LangGraph Studio.
 3. Load the graph.
-4. Paste in the onboarding sample brief.
+4. Load the file-backed onboarding request packet or paste in the onboarding sample brief.
 
 ## Talk Track
 
@@ -15,11 +15,14 @@
 
 ### 2. Walk through the graph
 
+- load and validate a request packet
 - ingest the brief
 - analyze the workflow
 - draft a plan
 - pause for human review
 - either finalize or escalate
+
+Point out that the validator is deterministic and runs before the LLM planning steps. That helps show a real-world integration boundary instead of a pure prompt-only demo.
 
 ### 3. Emphasize human review
 
@@ -27,9 +30,8 @@
 
 ### 4. Emphasize fallback behavior
 
-"If confidence is weak or the reviewer pushes back, the graph escalates instead of bluffing."
+"If the intake validator finds missing required fields, the graph lowers confidence, recommends revision, and keeps the plan clarification-first instead of bluffing."
 
 ### 5. Emphasize observability
 
-"Every run can be traced in LangSmith, and I added a starter eval harness so the repo is not just prompt output without checks."
-
+"Every run can be traced in LangSmith, and I added a starter eval harness plus public screenshots so the repo is not just prompt output without checks."
