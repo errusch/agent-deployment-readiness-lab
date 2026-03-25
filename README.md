@@ -1,6 +1,6 @@
 # Agent Deployment Readiness Lab
 
-A focused LangGraph application that turns a messy business workflow request into a structured agent deployment plan.
+A focused LangGraph application that turns a messy business workflow request into a structured, reviewable agent deployment plan.
 
 This project is intentionally narrow. It is not a chatbot, a general-purpose multi-agent platform, or a claim of "production-ready enterprise AI." It is a small applied LangGraph repo designed to show the pieces LangChain's ecosystem keeps emphasizing in public:
 
@@ -14,6 +14,37 @@ It supports two operating modes:
 
 - **Live model mode** for real LangChain/LangGraph runs
 - **Offline demo mode** for walking through the graph without API keys
+
+## Why This Repo Exists
+
+This repo is meant to show a very specific kind of judgment:
+
+- how to turn a vague workflow idea into a pilot-worthy agent plan
+- how to keep a human review gate in the loop
+- how to surface missing information and failure modes instead of hiding them
+- how to make the path from prototype to operational use legible
+
+It is optimized for the transition point where teams say:
+
+> "We can get an agent to do something interesting. How do we make it safe, reviewable, and worth piloting?"
+
+## What A Good Run Produces
+
+For a single workflow brief, the graph produces:
+
+- a normalized workflow summary
+- a proposed graph shape
+- a concise tool plan
+- explicit human review points
+- likely failure modes
+- guardrails
+- a rollout checklist
+- either a final pilot plan or an escalation for more context
+
+## Sample Artifacts
+
+- Onboarding ops sample: [`examples/sample_outputs/onboarding_plan.md`](./examples/sample_outputs/onboarding_plan.md)
+- Executive support sample: [`examples/sample_outputs/executive_support_plan.md`](./examples/sample_outputs/executive_support_plan.md)
 
 ## What It Does
 
@@ -173,6 +204,18 @@ LANGSMITH_TRACING=true
 LANGSMITH_PROJECT=agent-deployment-readiness-lab
 ```
 
+### Runtime Evidence
+
+The intended proof pattern for this repo is:
+
+- review the sample outputs in [`examples/sample_outputs`](./examples/sample_outputs)
+- run the graph locally on a sample brief
+- inspect the interrupt and final output in LangSmith under the `agent-deployment-readiness-lab` project
+
+This keeps the repo grounded in actual runs rather than static examples alone.
+
+Reference note: [`docs/runtime-evidence.md`](./docs/runtime-evidence.md)
+
 ## Evaluation
 
 This repo includes a lightweight starter eval harness:
@@ -212,5 +255,8 @@ More detail: [`docs/limitations.md`](./docs/limitations.md)
 
 - Architecture notes: [`docs/architecture.md`](./docs/architecture.md)
 - Demo script: [`docs/demo-script.md`](./docs/demo-script.md)
+- Runtime evidence: [`docs/runtime-evidence.md`](./docs/runtime-evidence.md)
 - Sample briefs: [`examples/sample_briefs`](./examples/sample_briefs)
-- Sample output: [`examples/sample_outputs/onboarding_plan.md`](./examples/sample_outputs/onboarding_plan.md)
+- Sample outputs:
+  - [`examples/sample_outputs/onboarding_plan.md`](./examples/sample_outputs/onboarding_plan.md)
+  - [`examples/sample_outputs/executive_support_plan.md`](./examples/sample_outputs/executive_support_plan.md)
