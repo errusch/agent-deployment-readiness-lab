@@ -59,6 +59,24 @@ def _structured_invoke(schema, system_prompt: str, user_prompt: str):
     )
 
 
+def _load_structured_brief(payload: dict | StructuredBrief) -> StructuredBrief:
+    if isinstance(payload, StructuredBrief):
+        return payload
+    return StructuredBrief.model_validate(payload)
+
+
+def _load_workflow_analysis(payload: dict | WorkflowAnalysis) -> WorkflowAnalysis:
+    if isinstance(payload, WorkflowAnalysis):
+        return payload
+    return WorkflowAnalysis.model_validate(payload)
+
+
+def _load_draft_plan(payload: dict | DraftPlan) -> DraftPlan:
+    if isinstance(payload, DraftPlan):
+        return payload
+    return DraftPlan.model_validate(payload)
+
+
 def _format_brief_for_llm(state: GraphState) -> str:
     return f"""Original brief:
 {state["brief"]}
@@ -123,9 +141,9 @@ def parse_reviewer_response(response: object) -> tuple[str, str]:
 
 
 def render_final_output(state: GraphState) -> str:
-    structured_brief = state["structured_brief"]
-    workflow_analysis = state["workflow_analysis"]
-    draft_plan = state["draft_plan"]
+    structured_brief = _load_structured_brief(state["structured_brief"])
+    workflow_analysis = _load_workflow_analysis(state["workflow_analysis"])
+    draft_plan = _load_draft_plan(state["draft_plan"])
     reviewer_notes = state.get("reviewer_notes", "").strip()
 
     lines = [
@@ -201,9 +219,9 @@ def render_final_output(state: GraphState) -> str:
 
 
 def render_escalation_output(state: GraphState) -> str:
-    structured_brief = state["structured_brief"]
-    workflow_analysis = state["workflow_analysis"]
-    draft_plan = state["draft_plan"]
+    structured_brief = _load_structured_brief(state["structured_brief"])
+    workflow_analysis = _load_workflow_analysis(state["workflow_analysis"])
+    draft_plan = _load_draft_plan(state["draft_plan"])
     reviewer_notes = state.get("reviewer_notes", "").strip()
 
     lines = [
@@ -244,23 +262,23 @@ def render_escalation_output(state: GraphState) -> str:
 
 def ingest_brief(state: GraphState) -> GraphState:
     if get_settings().demo_mode:
-        return {"structured_brief": demo_structured_brief(state["brief"])}
+        return {"structured_brief": demo_structured_brief(state["brief"]).model_dump()}
 
     structured_brief = _structured_invoke(
         StructuredBrief,
         INGEST_SYSTEM_PROMPT,
         _format_brief_for_llm(state),
     )
-    return {"structured_brief": structured_brief}
+    return {"structured_brief": structured_brief.model_dump()}
 
 
 def analyze_workflow(state: GraphState) -> GraphState:
-    structured_brief = state["structured_brief"]
+    structured_brief = _load_structured_brief(state["structured_brief"])
     if get_settings().demo_mode:
         workflow_analysis = demo_workflow_analysis(structured_brief, state["brief"])
         reference_patterns = get_reference_patterns(workflow_analysis.workflow_type)
         return {
-            "workflow_analysis": workflow_analysis,
+            "workflow_analysis": workflow_analysis.model_dump(),
             "reference_patterns": reference_patterns,
         }
 
@@ -271,14 +289,14 @@ def analyze_workflow(state: GraphState) -> GraphState:
     )
     reference_patterns = get_reference_patterns(workflow_analysis.workflow_type)
     return {
-        "workflow_analysis": workflow_analysis,
+        "workflow_analysis": workflow_analysis.model_dump(),
         "reference_patterns": reference_patterns,
     }
 
 
 def draft_plan(state: GraphState) -> GraphState:
-    structured_brief = state["structured_brief"]
-    workflow_analysis = state["workflow_analysis"]
+    structured_brief = _load_structured_brief(state["structured_brief"])
+    workflow_analysis = _load_workflow_analysis(state["workflow_analysis"])
     reference_patterns = state["reference_patterns"]
     if get_settings().demo_mode:
         return {
@@ -286,7 +304,7 @@ def draft_plan(state: GraphState) -> GraphState:
                 structured_brief,
                 workflow_analysis,
                 reference_patterns,
-            )
+            ).model_dump()
         }
 
     draft = _structured_invoke(
@@ -294,12 +312,12 @@ def draft_plan(state: GraphState) -> GraphState:
         DRAFT_PLAN_SYSTEM_PROMPT,
         _format_plan_input(structured_brief, workflow_analysis, reference_patterns),
     )
-    return {"draft_plan": draft}
+    return {"draft_plan": draft.model_dump()}
 
 
 def review_gate(state: GraphState) -> GraphState:
-    draft = state["draft_plan"]
-    workflow_analysis = state["workflow_analysis"]
+    draft = _load_draft_plan(state["draft_plan"])
+    workflow_analysis = _load_workflow_analysis(state["workflow_analysis"])
     response = interrupt(
         {
             "title": "Review proposed deployment plan",
@@ -322,7 +340,7 @@ def review_gate(state: GraphState) -> GraphState:
 
 
 def route_after_review(state: GraphState) -> Literal["finalize_plan", "escalate_request"]:
-    draft = state["draft_plan"]
+    draft = _load_draft_plan(state["draft_plan"])
     threshold = get_settings().approval_confidence_threshold
     if state.get("reviewer_decision") == "approve" and draft.confidence >= threshold:
         return "finalize_plan"
