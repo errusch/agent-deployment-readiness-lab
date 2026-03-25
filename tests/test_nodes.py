@@ -3,6 +3,7 @@ from agent_deployment_readiness_lab.nodes import (
     parse_reviewer_response,
     render_escalation_output,
     render_final_output,
+    route_after_review,
 )
 from agent_deployment_readiness_lab.schemas import DraftPlan, StructuredBrief, WorkflowAnalysis
 
@@ -78,3 +79,13 @@ def test_render_escalation_output_contains_missing_information():
     output = render_escalation_output(build_sample_state())
     assert "## Missing Information" in output
     assert "No SLA was provided" in output
+
+
+def test_route_after_review_allows_human_override():
+    state = build_sample_state()
+    assert route_after_review(state | {"reviewer_decision": "approve"}) == "finalize_plan"
+
+
+def test_route_after_review_escalates_revision_request():
+    state = build_sample_state()
+    assert route_after_review(state | {"reviewer_decision": "revise"}) == "escalate_request"

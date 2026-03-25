@@ -318,7 +318,7 @@ def review_gate(state: GraphState) -> GraphState:
             else "revise",
             "likely_failure_modes": workflow_analysis.likely_failure_modes,
             "human_review_points": workflow_analysis.human_review_points,
-            "instructions": "Reply with {'approved': true, 'notes': '...'} to continue, or send revision notes to escalate.",
+            "instructions": "Reply with {'approved': true, 'notes': '...'} to finalize with a human override if needed, or send revision notes to escalate for more context.",
         }
     )
     decision, notes = parse_reviewer_response(response)
@@ -329,9 +329,7 @@ def review_gate(state: GraphState) -> GraphState:
 
 
 def route_after_review(state: GraphState) -> Literal["finalize_plan", "escalate_request"]:
-    draft = _load_draft_plan(state["draft_plan"])
-    threshold = get_settings().approval_confidence_threshold
-    if state.get("reviewer_decision") == "approve" and draft.confidence >= threshold:
+    if state.get("reviewer_decision") == "approve":
         return "finalize_plan"
     return "escalate_request"
 

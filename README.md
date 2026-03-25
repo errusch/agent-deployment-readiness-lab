@@ -109,8 +109,10 @@ agent-deployment-readiness-lab/
 ```bash
 uv venv
 source .venv/bin/activate
-uv sync
+uv sync --extra dev --no-editable
 ```
+
+This repo defaults to a non-editable install for the demo path. That makes the first-run experience more reliable for reviewers and keeps the documented commands aligned with what actually works from a cold start.
 
 ### 2. Configure environment
 
@@ -188,6 +190,8 @@ When the graph hits the approval step, resume it with something like:
 }
 ```
 
+The graph will still surface a low-confidence recommendation when appropriate, but an explicit human approval now acts as the final override.
+
 If you want the graph to stop at review without auto-approving, run:
 
 ```bash
@@ -229,8 +233,10 @@ Run it with:
 
 ```bash
 source .venv/bin/activate
-python tests/run_eval.py
+AGENT_DEPLOYMENT_DEMO_MODE=true python tests/run_eval.py
 ```
+
+That keeps the starter eval deterministic and focused on graph behavior rather than live model variability.
 
 ## Current Limitations
 
