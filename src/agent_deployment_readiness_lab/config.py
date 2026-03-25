@@ -12,6 +12,7 @@ class Settings:
     model_name: str
     approval_confidence_threshold: float
     demo_mode: bool
+    reasoning_effort: str | None
 
 
 @lru_cache(maxsize=1)
@@ -25,8 +26,10 @@ def get_settings() -> Settings:
         "yes",
         "on",
     }
+    reasoning_effort = os.getenv("AGENT_DEPLOYMENT_REASONING_EFFORT")
     return Settings(
         model_name=model_name,
         approval_confidence_threshold=threshold,
         demo_mode=demo_mode,
+        reasoning_effort=reasoning_effort,
     )

@@ -96,6 +96,14 @@ If you want to run the project without model keys first, set:
 AGENT_DEPLOYMENT_DEMO_MODE=true
 ```
 
+For GPT-5 models, you can also tune reasoning effort:
+
+```bash
+AGENT_DEPLOYMENT_REASONING_EFFORT=low
+```
+
+That is useful when the workflow is structured and operational, but does not need deep multi-minute reasoning.
+
 ### 3. Run locally with LangGraph Studio
 
 ```bash

@@ -17,7 +17,10 @@ from .state import GraphState
 @lru_cache(maxsize=1)
 def get_model():
     settings = get_settings()
-    return init_chat_model(settings.model_name, temperature=0)
+    kwargs = {"temperature": 0}
+    if settings.reasoning_effort:
+        kwargs["reasoning_effort"] = settings.reasoning_effort
+    return init_chat_model(settings.model_name, **kwargs)
 
 
 REFERENCE_PATTERN_LIBRARY: dict[str, list[str]] = {
